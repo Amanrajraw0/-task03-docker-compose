@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx_web
+    ports:
+      - "${NGINX_PORT}:80"
+
+    volumes:
+      # ✅ Use absolute paths for consistent bind mounts
+      - /home/ubuntu/task03-docker-compose/nginx/index.html:/usr/share/nginx/html/index.html
+      - /home/ubuntu/task03-docker-compose/nginx/nginx.conf:/etc/nginx/nginx.conf
+
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT}
+    
+    # ✅ Prevent Watchtower from updating or replacing this container
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
+
+    restart: always
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    
+    # ✅ Watchtower will update only containers that have no disable label
+    command: --cleanup --interval 3600
+    
+    restart: always
